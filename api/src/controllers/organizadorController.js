@@ -1,4 +1,4 @@
-let organizadores = [];
+const connect = require('../db/connect');
 let OrgId = 1;
 
 module.exports = class organizadorController{
@@ -22,18 +22,36 @@ module.exports = class organizadorController{
     }
 
     // Verifica se já existe um usuário com o mesmo CPF
-    const existingOrganizador = organizadores.find((organizador) => organizador.email === email);
-    if (existingOrganizador) {
-      return res.status(400).json({ error: "Email já cadastrado" });
-    }
+    const query = `INSERT INTO organizador (telefone, password, email, name) VALUES(
+      '${telefone}', 
+      '${password}', 
+      '${email}', 
+      '${name}')`;
 
-    // Cria e adiciona novo usuário
-    const newOrganizador = { id_organizador: OrgId++, telefone, email, password, name };
-    organizadores.push(newOrganizador);
-    return res
-    .status(201)
-    .json({ message: "Usuário organizador criado com sucesso"});
-}
+    // Executando a query criada
+    try{
+      connect.query(query, function(err){
+        if(err){
+          console.log(err)
+          console.log(err.code)
+          if(err.code === 'ER_DUP_ENTRY') {  // tratamento do erro de uma duplicidade de email
+            return res.status(400).json({error: "O email já está vinculado a outro organizador!",});
+          } 
+          else{
+            return res.status(400).json({error: "Erro interno do servidor!",});
+          }
+        }
+        else{
+          return res
+          .status(201)
+          .json({ message: "Usuário de organizador criado com sucesso"});
+        }
+      });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({error: "Erro interno do servidor!"})
+    }
+  }
 
 static async getAllOrganizadores(req, res) {
   return res

@@ -16,3 +16,5 @@ app.listen(5000);
 
 
 // http://localhost:5000/api/v1/user
+
+//http://localhost:5000/api/v1//organizador
