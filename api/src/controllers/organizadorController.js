@@ -1,24 +1,20 @@
-const connect = require('../db/connect');
-let OrgId = 1;
+const connect = require("../db/connect");
+let organizadorId = 1;
 
-module.exports = class organizadorController{
+module.exports = class organizadorController {
   static async createOrganizador(req, res) {
     const { telefone, email, password, name } = req.body;
 
     if (!telefone || !email || !password || !name) {
       return res
-      .status(400)
-      .json({ error: "Todos os campos devem ser preenchidos" });
-    } 
-    
-    else if (isNaN(telefone) || telefone.length !== 11) {
-        return res
         .status(400)
-        .json({error: "Telefone inválido. Deve conter exatamente 11 dígitos numéricos",});
-    } 
-    
-    else if (!email.includes("@")) {
-       return res.status(400).json({ error: "Email inválido. Deve conter @" });
+        .json({ error: "Todos os campos devem ser preenchidos" });
+    } else if (isNaN(telefone) || telefone.length !== 11) {
+      return res.status(400).json({
+        error: "Telefone inválido. Deve conter exatamente 11 dígitos numéricos",
+      });
+    } else if (!email.includes("@")) {
+      return res.status(400).json({ error: "Email inválido. Deve conter @" });
     }
 
     // Verifica se já existe um usuário com o mesmo CPF
@@ -29,76 +25,109 @@ module.exports = class organizadorController{
       '${name}')`;
 
     // Executando a query criada
-    try{
-      connect.query(query, function(err){
-        if(err){
-          console.log(err)
-          console.log(err.code)
-          if(err.code === 'ER_DUP_ENTRY') {  // tratamento do erro de uma duplicidade de email
-            return res.status(400).json({error: "O email já está vinculado a outro organizador!",});
-          } 
-          else{
-            return res.status(400).json({error: "Erro interno do servidor!",});
+    try {
+      connect.query(query, function (err) {
+        if (err) {
+          console.log(err);
+          console.log(err.code);
+          if (err.code === "ER_DUP_ENTRY") {
+            // tratamento do erro de uma duplicidade de email
+            return res.status(400).json({
+              error: "O email já está vinculado a outro organizador!",
+            });
+          } else {
+            return res.status(400).json({ error: "Erro interno do servidor!" });
           }
-        }
-        else{
+        } else {
           return res
-          .status(201)
-          .json({ message: "Usuário de organizador criado com sucesso"});
+            .status(201)
+            .json({ message: "Usuário de organizador criado com sucesso" });
         }
       });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({error: "Erro interno do servidor!"})
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Erro interno do servidor!" });
     }
   }
 
-static async getAllOrganizadores(req, res) {
-  return res
-    .status(200)
-    .json({ message: "Obtendo todos os usuários", organizadores});
-}
-
-static async updateOrganizador(req, res) {
-  //Desestrutura e recupera dados enviados via corpo de requisição
-  const { id_organizador, telefone, email, password, name } = req.body;
-
-  //Validar se os todos os campos foram preenchidos
-  if (!telefone || !email || !password || !name) {
-    return res
-      .status(400)
-      .json({ error: "Todos os campos devem ser preenchidos!!" });
+  static async getAllOrganizadores(req, res) {
+    const query = `SELECT * FROM organizador`;
+    try {
+      connect.query(query, function (err, results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Erro interno do servidor!" });
+        }
+        return res
+          .status(200)
+          .json({ message: "Lista de organizadores", organizadores: results });
+      });
+    } catch (error) {
+      console.error("Error ao execultar consulta: ", error);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
   }
+  //UPDATE
+  static async updateOrganizador(req, res) {
+    //Desestrutura e recupera dados enviados via corpo de requisição
+    const { id, telefone, email, senha, nome } = req.body;
 
-  //Procurar indice no Array "organizadores" pelo ID
-  const organizadorIndex = organizadores.findIndex((organizador) => organizador.id_organizador == id_organizador);
-  
-  //Se o usuario não for encontrado userIdex = -1
-  if (organizadorIndex == -1) {
-    return res.status(400).json({ error: "Usuário não encontrado!!" });
-  }
+    //Validar se os todos os campos foram preenchidos
+    if (!telefone || !email || !senha || !nome|| !id) {
+      return res
+        .status(400)
+        .json({ error: "Todos os campos devem ser preenchidos!!" });
+    }
+    const query = `UPDATE organizador SET nome=?, email=?, senha=?, telefone=? WHERE id_organizador=?`;
+    const values = [nome, email, senha, telefone, id];
 
-  //Atualiza os dados do usuario no Array "organizadores"
-  organizadores[organizadorIndex] = { id_organizador, telefone, email, password, name };
-  return res
-    .status(200)
-    .json({ message: "Usuário organizador atualizado!!", organizador: organizadores[organizadorIndex] });
+    try {
+      connect.query(query, values, function (err, results) {
+        if (err) {
+          if (err.code === "ER_DUR_ENTRY") {
+            return res
+              .status(400)
+              .json({ error: "Email já cadastrado por outro organizador" });
+          } else {
+            console.error(err);
+            return res.status(500).json({ error: "Erro interno do servidor" });
+          }
+        }
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ error: "Organizador não encontrado" });
+        }
+        return res
+          .status(200)
+          .json({ message: "O organizador foi atualizador" });
+      });
+    } catch (error) {
+      console.error("error ao executar consulta", error);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
   }
 
   //DELETE
   static async deleteOrganizador(req, res) {
-    //Procurar indice no Array "organizadores" pelo ID
-    const id_organizador = req.params.id_organizador;
+    const organizadorId = req.params.id;
+    const query = `DELETE FROM organizador WHERE id_organizador=? `;
+    const values = [organizadorId];
 
-    const OrgId = organizadores.findIndex((organizador) => organizador.id_organizador == id_organizador);
+    try{
+      connect.query(query, values, function(err,results){
+        if(err){
+          console.error(err);
+          return res.status(500).json({error:"Erro interno do servidor"});
+        }
 
-  
-    if (OrgId == -1) {
-      return res.status(400).json({ error: "Usuário não encontrado!!" });
+        if(results.affectedRows === 0){
+          return res.status(404).json({error:"Orgaizador não encontrado"});
+        }
+        return res.status(200).json({message:"Organizador excluido com sucesso"});
+      })
     }
-
-    //Removendo o usuário do Array 'organizadores'
-    organizadores.splice(OrgId, 1);
-    return res.status(200).json({ message: "Usuário organizador Apagado!!" });
+    catch(error){
+      console.error(error);
+      return res.status(500).json({error:"Erro interno no servidor"});
+    }
   }
-}
+};
