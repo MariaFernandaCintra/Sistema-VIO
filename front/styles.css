@@ -104,12 +104,24 @@ main section {
   flex: 1; /* Faz com que os itens se ajustem dinamicamente */
 }
 
+#user-list{
+  
+  color: #036452;
+  text-align:left;
+  background-color: #deeced;
+  line-height: 30px;
+  border: 1px solid #676363;
+  border-radius: 10px;
+  display: inline-block;
+  padding: 20px;
+}
+
 /* Estilo do rodapé */
 footer {
   background-color: #333; /* Cor de fundo escura */
   color: white; /* Cor do texto do rodapé */
   text-align: center; /* Centraliza o texto */
-  padding: 20px 0; /* Espaçamento interno no topo e na base */
+  padding: 20px; /* Espaçamento interno no topo e na base */
   width: 100%; /* Faz com que o rodapé ocupe toda a largura */
   position: absolute; /* Posiciona o rodapé de forma absoluta */
   bottom: 0; /* Posiciona o rodapé na parte inferior da página */
