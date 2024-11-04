@@ -3,6 +3,12 @@ document.getElementById("formulario-registro").addEventListener("submit", create
 
 document.addEventListener("DOMContentLoaded", getAllUsers);
 
+document.addEventListener("DOMContentLoaded", getAllUsersTable);
+
+document.addEventListener("DOMContentLoaded", getAllOrganizadorTable);
+
+
+
 function createUser(event) {
   //previne o comportamento padrão do formulário, ou seja, impede que ele seja enviado e recarregue a página
   event.preventDefault();
@@ -14,7 +20,7 @@ function createUser(event) {
   const password = document.getElementById("senha").value;
 
   //requisição HTTP para o enpoint de cadastro de usuario
-  fetch("http://10.89.240.105:5000/api/v1/user", {
+  fetch("http://10.89.240.3:5000/api/v1/user", {
     //realiza uma chamada http para o servidor, neste caso a rota definida
     method: "POST",
     headers: {
@@ -56,7 +62,7 @@ function createUser(event) {
 }
 
 function getAllUsers() {
-  fetch("http://10.89.240.105:5000/api/v1/user", {
+  fetch("http://10.89.240.3:5000/api/v1/user", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -83,4 +89,96 @@ function getAllUsers() {
       alert("Erro ao obter usuários" + error.message);
       console.error("Erro: ", error.message);
     });
+}
+
+function getAllUsersTable(){
+  fetch("http://10.89.240.3:5000/api/v1/user", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      return response.json().then((err) => {
+        throw new Error(err.error);
+      });
+    })
+    .then((data) => {
+      const userList = document.getElementById("user-list-tabela");
+      userList.innerHTML = ""; // limpa a lista antes de adicionar novos itens
+
+      //Verifica se há usuarios retornados e os adiciona á tabela 
+      data.users.forEach((usuario) => {
+        //Cria uma nova linha 
+        const tr = document.createElement("tr");
+
+        //Cria celulas para nome, cpf e email
+        const tdName = document.createElement("td");
+        tdName.textContent = usuario.name;tr.appendChild(tdName);
+
+        const tdCPF = document.createElement("td");
+        tdCPF.textContent = usuario.cpf;tr.appendChild(tdCPF);
+
+        const tdEmail = document.createElement("td");
+        tdEmail.textContent = usuario.email;tr.appendChild(tdEmail);
+
+        //adiciona a linha á tabela
+        userList.appendChild(tr);
+
+        
+
+      });
+    })
+    .catch((error) =>{
+      alert("Erro ao obter usuários: " + error.message);
+      console.error("Erro: ", error.message)
+    })
+}
+
+
+function getAllOrganizadorTable(){
+  fetch("http://10.89.240.3:5000/api/v1/organizador", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      return response.json().then((err) => {
+        throw new Error(err.error);
+      });
+    })
+    .then((data) => {
+      const organizadorList = document.getElementById("organizador-list-tabela");
+      organizadorList.innerHTML = ""; // limpa a lista antes de adicionar novos itens
+
+      //Verifica se há usuarios retornados e os adiciona á tabela 
+      data.organizadores.forEach((organizadores) => {
+        //Cria uma nova linha 
+        const tr = document.createElement("tr");
+
+        //Cria celulas para nome, cpf e email
+        const tdNome = document.createElement("td");
+        tdNome.textContent = organizadores.nome;tr.appendChild(tdNome);
+
+        const tdTelefone = document.createElement("td");
+        tdTelefone.textContent = organizadores.telefone;tr.appendChild(tdTelefone);
+
+        const tdEmail = document.createElement("td");
+        tdEmail.textContent = organizadores.email;tr.appendChild(tdEmail);
+
+        //adiciona a linha á tabela
+        organizadorList.appendChild(tr);
+      });
+    })
+    .catch((error) =>{
+      alert("Erro ao obter usuários: " + error.message);
+      console.error("Erro: ", error.message)
+    })
 }

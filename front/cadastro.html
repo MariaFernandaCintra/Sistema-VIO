@@ -32,7 +32,9 @@
           <li><a href="#contato">Contato</a></li>
         </ul>
       </nav>
-      <button class="botao-header" onclick="window.location.href='index.html'">Home</button>
+      <button class="botao-header" onclick="window.location.href='index.html'">
+        Home
+      </button>
     </header>
 
     <!-- Conteúdo principal da página, onde informações principais são exibidas -->
@@ -61,13 +63,41 @@
 
           <!--botão para enviar o formulario-->
           <input type="submit" value="Cadastrar" />
-
         </form>
       </section>
       <section>
         <!--lista para exibir os usuarios cadastrados-->
         <h2>Usuarios Cadastrados</h2>
         <ul id="user-list"></ul>
+      </section>
+
+      <section>
+        <h2>Usuários Cadastrados via Tabela</h2>
+        <table id="user-table">
+          <thead>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>E-mail</th>
+          </thead>
+
+          <tbody id="user-list-tabela">
+            <!--Os usuários serão adicionados aqui -->
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Organizdores Cadastrados Via Tabela </h2>
+        <table id="organizador-table">
+          <thead id="organizador-table">
+            <th>nome</th>
+            <th>email</th>
+            <th>telefone</th>
+          </thead>
+          <tbody id="organizador-list-tabela">
+            <!--Os organizadores serão adicionados aqui -->
+         </tbody>
+        </table>
       </section>
     </main>
 
