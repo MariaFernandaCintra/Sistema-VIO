@@ -75,6 +75,30 @@ module.exports = class eventoController {
         }
     }//fim do update 
 
+
+    //exclusão de eventos
+    static async deleteEvento(req, res){
+        const idEvento = req.params.id;
+
+        const query = `DELETE FROM evento WHERE id_evento=?`;
+
+        try{
+            connect.query(query, idEvento, (err, results) => {
+                if(err){
+                    console.log(err);
+                    return res.status(500).json({error: "Erro ao excluir evento!"});
+                }
+                if(results.affectedRows === 0){
+                    return res.status(404).json({error:"Evento não encontrado"});
+                }
+                return res.status(200).json({message: "Evento excluido com sucesso!"});
+            })
+        }catch(error){
+            console.log("Erro ao executar consulta!", error);
+            return res.status(500).json({error: "Erro interno do servidor!"});
+        }
+    }
+
    
 }
 
