@@ -3,9 +3,9 @@ let organizadorId = 1;
 
 module.exports = class organizadorController {
   static async createOrganizador(req, res) {
-    const { telefone, email, password, name } = req.body;
+    const { telefone, email, senha, nome } = req.body;
 
-    if (!telefone || !email || !password || !name) {
+    if (!telefone || !email || !senha || !nome) {
       return res
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
@@ -18,11 +18,11 @@ module.exports = class organizadorController {
     }
 
     // Verifica se já existe um usuário com o mesmo CPF
-    const query = `INSERT INTO organizador (telefone, password, email, name) VALUES(
+    const query = `INSERT INTO organizador (telefone, senha, email, nome) VALUES(
       '${telefone}', 
-      '${password}', 
+      '${senha}', 
       '${email}', 
-      '${name}')`;
+      '${nome}')`;
 
     // Executando a query criada
     try {
