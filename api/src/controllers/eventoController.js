@@ -99,6 +99,73 @@ module.exports = class eventoController {
         }
     }
 
+
+    static async getEventosPorData(req, res){
+        const query = `SELECT * FROM evento`
+        try{
+            connect.query(query, (err,results)=>{
+                if(err){
+                    console.error(err);
+                    return res.status(500).json({error: "Erro ao buscar eventos"})
+                }
+                //retorna o dia do evento que esta nessa posição no array
+                //evento 1
+                const dataEvento = new Date(results[0].data_hora);
+                const dia = dataEvento.getDate()
+                const mes = dataEvento.getMonth()+1
+                const ano = dataEvento.getFullYear()
+                console.log('Evento 1: '+dia+'/'+mes+'/'+ano)
+                //passado e futuro da data atual do momento
+                const now = new Date()
+                const eventosPassados = results.filter(evento => new Date(evento.data_hora)<now)
+                const eventosFuturos = results.filter(evento => new Date(evento.data_hora)>=now)
+
+                const diferencaMs = eventosFuturos[0].data_hora.getTime() - now.getTime();
+                const dias = Math.floor(diferencaMs/(1000*60*60*24));
+                const horas = Math.floor((diferencaMs%(1000*60*60*24))/(1000*60*60));
+                console.log(diferencaMs, 'Falta: '+dias+ ' dias, : ' +horas+ ' horas para o evento')
+
+                //comparando datas
+                const dataFiltro = new Date('2024-12-15').toISOString().split("T");
+                const eventoDia = results.filter(evento => new Date (evento.data_hora).toISOString().split("T")[0] === dataFiltro[0]);
+                console.log("Eventos: ", eventoDia);
+
+                return res.status(200).json({message:"OK", eventosPassados, eventosFuturos})
+            })
+
+        }catch(error){
+            console.error(error);
+            return res.status(500).json({error: "Erro ao buscar eventos"})
+        }
+        
+
+    }
+
+
+    static async getEventosAgendados(req, res){
+        const query = `SELECT * FROM evento`
+
+        try{
+            connect.query(query, (err, results)=> {
+                if(err){
+                    console.error(err);
+                    return res.status(500).json({error: "Erro ao buscar eventos"})
+                }
+                const dataEvento = req.params.data;
+                const now = new Date;
+                const eventosDentre7dias = results.filter(evento => new Date(evento.data_hora)>now<7)
+                const eventosFora7dias = results.filter(evento => new Date(evento.data_hora)<now>7)
+                console.log("eventos que aconteceram em 7 dias: ", eventosDentre7dias);
+                console.log("eventos que não aconteceram em 7 dias: ", eventosFora7dias);
+
+
+            })
+        }catch(error){
+            console.error(error);
+            return res.status(500).json({error: "Erro ao buscar eventos"})
+        }
+    }
+
    
 }
 
